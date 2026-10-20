@@ -128,7 +128,7 @@ export function buildM5() {
     steps: 1,
     bevelEnabled: true,
     bevelThickness: 0.02,
-    bevelSize: 0.02,
+    bevelSize: 0.012,
     bevelSegments: 3,
   });
   bodyGeo.translate(0, 0, -1.86 / 2);
@@ -147,8 +147,8 @@ export function buildM5() {
   // -------------------------------------------------------------- glazing
   // Windshield + rear screen sit just proud of the shell; the side glass is
   // cut as flat trapezoids and laid onto the flanks, leaving painted pillars.
-  root.add(panelBetween(0.94, 1.03, 0.36, 1.452, 1.4, 0.02, glass, 0.006));
-  root.add(panelBetween(-1.06, 1.43, -1.6, 1.07, 1.36, 0.02, glass, 0.006));
+  root.add(panelBetween(0.94, 1.03, 0.36, 1.452, 1.4, 0.02, glass, 0.016));
+  root.add(panelBetween(-1.06, 1.43, -1.6, 1.07, 1.36, 0.02, glass, 0.016));
 
   const frontWindow = new THREE.Shape([
     new THREE.Vector2(0.66, 1.055),
