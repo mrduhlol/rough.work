@@ -48,12 +48,12 @@ export function buildM5() {
 
   // -------------------------------------------------------------- materials
   const glass = new THREE.MeshPhysicalMaterial({
-    color: 0x020305,
+    color: 0x030406,
     metalness: 0.0,
-    roughness: 0.22,
+    roughness: 0.5,
     clearcoat: 0.0,
     clearcoatRoughness: 0.1,
-    envMapIntensity: 0.12,
+    envMapIntensity: 0.05,
   });
 
   const tailGlass = new THREE.MeshPhysicalMaterial({
