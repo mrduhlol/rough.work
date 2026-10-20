@@ -48,12 +48,21 @@ export function buildM5() {
 
   // -------------------------------------------------------------- materials
   const glass = new THREE.MeshPhysicalMaterial({
-    color: 0x04060a,
+    color: 0x030508,
+    metalness: 0.0,
+    roughness: 0.1,
+    clearcoat: 0.15,
+    clearcoatRoughness: 0.1,
+    envMapIntensity: 0.25,
+  });
+
+  const tailGlass = new THREE.MeshPhysicalMaterial({
+    color: 0x120204,
     metalness: 0.0,
     roughness: 0.08,
-    clearcoat: 0.25,
-    clearcoatRoughness: 0.1,
-    envMapIntensity: 0.45,
+    clearcoat: 0.6,
+    clearcoatRoughness: 0.08,
+    envMapIntensity: 0.4,
   });
 
   const trim = new THREE.MeshStandardMaterial({
@@ -278,13 +287,13 @@ export function buildM5() {
 
   // Headlights: wide housings, projector lens, two angled DRL bars.
   for (const side of [1, -1]) {
-    const housing = new THREE.Mesh(new THREE.BoxGeometry(0.14, 0.12, 0.4), glass);
-    housing.position.set(2.33, 0.8, side * 0.56);
+    const housing = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.12, 0.4), glass);
+    housing.position.set(2.315, 0.8, side * 0.56);
     root.add(housing);
 
     const lens = new THREE.Mesh(new THREE.CylinderGeometry(0.032, 0.032, 0.014, 24), chrome);
     lens.rotation.z = Math.PI / 2;
-    lens.position.set(2.402, 0.78, side * 0.6);
+    lens.position.set(2.376, 0.78, side * 0.6);
     root.add(lens);
 
     for (const [dy, tilt] of [
@@ -292,7 +301,7 @@ export function buildM5() {
       [-0.005, -0.28],
     ]) {
       const bar = new THREE.Mesh(new THREE.BoxGeometry(0.02, 0.02, 0.2), drlMat);
-      bar.position.set(2.403, 0.8 + dy, side * 0.56);
+      bar.position.set(2.377, 0.8 + dy, side * 0.56);
       bar.rotation.x = tilt;
       root.add(bar);
     }
@@ -315,19 +324,18 @@ export function buildM5() {
 
   // ----------------------------------------------------------- rear details
   for (const side of [1, -1]) {
-    const housing = new THREE.Mesh(new THREE.BoxGeometry(0.07, 0.16, 0.46), glass);
-    housing.position.set(-2.6, 0.8, side * 0.55);
+    const housing = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.17, 0.46), tailGlass);
+    housing.position.set(-2.605, 0.8, side * 0.55);
     root.add(housing);
 
-    // L-shaped LED signature: two horizontal bars plus an outer vertical bar.
-    for (const y of [0.855, 0.755]) {
-      const bar = new THREE.Mesh(new THREE.BoxGeometry(0.015, 0.024, 0.4), tailMat);
-      bar.position.set(-2.638, y, side * 0.55);
-      root.add(bar);
-    }
-    const outerBar = new THREE.Mesh(new THREE.BoxGeometry(0.015, 0.12, 0.022), tailMat);
-    outerBar.position.set(-2.638, 0.805, side * 0.735);
-    root.add(outerBar);
+    // Slim twin LED bars.
+    const bar = new THREE.Mesh(new THREE.BoxGeometry(0.02, 0.035, 0.4), tailMat);
+    bar.position.set(-2.638, 0.84, side * 0.55);
+    root.add(bar);
+
+    const bar2 = new THREE.Mesh(new THREE.BoxGeometry(0.02, 0.02, 0.28), tailMat);
+    bar2.position.set(-2.638, 0.765, side * 0.58);
+    root.add(bar2);
   }
 
   // Trunk lip spoiler.
