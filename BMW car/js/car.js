@@ -33,9 +33,9 @@ export function buildM5() {
   const paint = new THREE.MeshPhysicalMaterial({
     color: PAINTS[0].hex,
     metalness: 0.85,
-    roughness: 0.28,
+    roughness: 0.32,
     clearcoat: 1,
-    clearcoatRoughness: 0.1,
+    clearcoatRoughness: 0.12,
     envMapIntensity: 1.15,
   });
 
@@ -149,8 +149,8 @@ export function buildM5() {
   // -------------------------------------------------------------- glazing
   // Windshield + rear screen sit just proud of the shell; the side glass is
   // cut as flat trapezoids and laid onto the flanks, leaving painted pillars.
-  root.add(panelBetween(0.94, 1.03, 0.36, 1.452, 1.4, 0.02, glass, 0.016));
-  root.add(panelBetween(-1.06, 1.43, -1.6, 1.07, 1.36, 0.02, glass, 0.016));
+  root.add(panelBetween(0.94, 1.03, 0.36, 1.452, 1.4, glass, 0.016));
+  root.add(panelBetween(-1.06, 1.43, -1.6, 1.07, 1.36, glass, 0.016));
 
   const frontWindow = new THREE.Shape([
     new THREE.Vector2(0.66, 1.055),

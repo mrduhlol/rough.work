@@ -69,7 +69,7 @@ scene.add(sheen);
 const hemi = new THREE.HemisphereLight(0xbcd0ff, 0x0a0c10, 0.7);
 scene.add(hemi);
 
-const key = new THREE.DirectionalLight(0xffffff, 3.1);
+const key = new THREE.DirectionalLight(0xffffff, 2.85);
 key.position.set(5.5, 9, 5);
 key.castShadow = true;
 key.shadow.mapSize.set(2048, 2048);
