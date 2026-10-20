@@ -78,9 +78,9 @@ export function buildM5() {
   });
 
   const carbon = new THREE.MeshStandardMaterial({
-    color: 0x0e1013,
-    metalness: 0.4,
-    roughness: 0.55,
+    color: 0x08090b,
+    metalness: 0.15,
+    roughness: 0.5,
   });
 
   const rubber = new THREE.MeshStandardMaterial({
