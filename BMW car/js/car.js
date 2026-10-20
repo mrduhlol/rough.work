@@ -9,16 +9,16 @@ import * as THREE from 'three';
 // height ~1.47 (roof)
 // ---------------------------------------------------------------------------
 
-const WHEEL_Y = 0.35; // axle height (tire radius)
-const WHEEL_R = 0.35;
-const ARCH_R = 0.42; // wheel-arch radius in the side profile
+const WHEEL_Y = 0.37; // axle height (tire radius)
+const WHEEL_R = 0.37;
+const ARCH_R = 0.435; // wheel-arch radius in the side profile
 const BODY_BOTTOM = 0.16; // rocker height
 const HALF_W = 0.95; // body half width
 const AXLE_F = 1.45;
 const AXLE_R = -1.53;
 
 export const PAINTS = [
-  { name: 'Marina Bay Blue', hex: 0x14448f, roughness: 0.28 },
+  { name: 'Marina Bay Blue', hex: 0x1a55ab, roughness: 0.28 },
   { name: 'Black Sapphire', hex: 0x0d1016, roughness: 0.25 },
   { name: 'Isle of Man Green', hex: 0x12493a, roughness: 0.3 },
   { name: 'Toronto Red', hex: 0x8f1219, roughness: 0.3 },
@@ -48,12 +48,12 @@ export function buildM5() {
 
   // -------------------------------------------------------------- materials
   const glass = new THREE.MeshPhysicalMaterial({
-    color: 0x0b0f14,
+    color: 0x07090c,
     metalness: 0.0,
-    roughness: 0.06,
-    clearcoat: 1,
-    clearcoatRoughness: 0.05,
-    envMapIntensity: 1.4,
+    roughness: 0.09,
+    clearcoat: 0.5,
+    clearcoatRoughness: 0.08,
+    envMapIntensity: 0.75,
   });
 
   const trim = new THREE.MeshStandardMaterial({
@@ -173,7 +173,10 @@ export function buildM5() {
     wheel.add(tread);
 
     for (const zs of [1, -1]) {
-      const shoulder = new THREE.Mesh(new THREE.TorusGeometry(0.285, 0.066, 20, 64), rubber);
+      const shoulder = new THREE.Mesh(
+        new THREE.TorusGeometry(WHEEL_R - 0.066, 0.066, 20, 64),
+        rubber
+      );
       shoulder.position.z = zs * 0.069;
       shoulder.castShadow = true;
       wheel.add(shoulder);
@@ -240,50 +243,56 @@ export function buildM5() {
     [AXLE_R, -1],
   ]) {
     const wheel = buildWheel(x === AXLE_F);
-    wheel.position.set(x, WHEEL_Y, side * 0.78);
+    wheel.position.set(x, WHEEL_Y, side * 0.8);
     if (side === -1) wheel.rotation.y = Math.PI;
     root.add(wheel);
   }
+
   // ---------------------------------------------------------- front details
-  // Twin kidney grille: two rounded-rect frames with vertical slats.
+  // Twin kidney grille: two tall rounded-rect frames with satin slats.
   {
-    const outer = roundedRectShape(0.3, 0.36, 0.05);
-    const inner = roundedRectShape(0.24, 0.3, 0.03);
+    const outer = roundedRectShape(0.33, 0.42, 0.06);
+    const inner = roundedRectShape(0.27, 0.36, 0.04);
     outer.holes.push(inner);
     const frameGeo = new THREE.ExtrudeGeometry(outer, {
-      depth: 0.045,
+      depth: 0.05,
       bevelEnabled: true,
-      bevelThickness: 0.004,
-      bevelSize: 0.004,
+      bevelThickness: 0.005,
+      bevelSize: 0.005,
       bevelSegments: 2,
     });
 
     for (const side of [1, -1]) {
       const frame = new THREE.Mesh(frameGeo, trim);
       frame.rotation.y = Math.PI / 2;
-      frame.position.set(2.325, 0.62, side * 0.165);
+      frame.position.set(2.33, 0.63, side * 0.185);
       root.add(frame);
 
       for (const off of [-0.09, -0.03, 0.03, 0.09]) {
-        const slat = new THREE.Mesh(new THREE.BoxGeometry(0.03, 0.3, 0.018), trim);
-        slat.position.set(2.35, 0.62, side * 0.165 + off);
+        const slat = new THREE.Mesh(new THREE.BoxGeometry(0.03, 0.36, 0.02), chrome);
+        slat.position.set(2.36, 0.63, side * 0.185 + off);
         root.add(slat);
       }
     }
   }
 
-  // Headlights: slim dark housings with two angled DRL bars each.
+  // Headlights: wide housings, projector lens, two angled DRL bars.
   for (const side of [1, -1]) {
-    const housing = new THREE.Mesh(new THREE.BoxGeometry(0.1, 0.13, 0.36), glass);
-    housing.position.set(2.34, 0.76, side * 0.53);
+    const housing = new THREE.Mesh(new THREE.BoxGeometry(0.14, 0.12, 0.4), glass);
+    housing.position.set(2.33, 0.8, side * 0.56);
     root.add(housing);
 
+    const lens = new THREE.Mesh(new THREE.CylinderGeometry(0.032, 0.032, 0.014, 24), chrome);
+    lens.rotation.z = Math.PI / 2;
+    lens.position.set(2.402, 0.78, side * 0.6);
+    root.add(lens);
+
     for (const [dy, tilt] of [
-      [0.035, 0.24],
-      [-0.01, -0.24],
+      [0.04, 0.28],
+      [-0.005, -0.28],
     ]) {
-      const bar = new THREE.Mesh(new THREE.BoxGeometry(0.015, 0.022, 0.185), drlMat);
-      bar.position.set(2.398, 0.76 + dy, side * 0.505);
+      const bar = new THREE.Mesh(new THREE.BoxGeometry(0.02, 0.02, 0.2), drlMat);
+      bar.position.set(2.403, 0.8 + dy, side * 0.56);
       bar.rotation.x = tilt;
       root.add(bar);
     }
@@ -304,21 +313,20 @@ export function buildM5() {
   splitter.position.set(2.315, 0.175, 0);
   root.add(splitter);
 
-  // ========================================================== rear details ==
   // ----------------------------------------------------------- rear details
   for (const side of [1, -1]) {
-    const housing = new THREE.Mesh(new THREE.BoxGeometry(0.05, 0.14, 0.4), glass);
+    const housing = new THREE.Mesh(new THREE.BoxGeometry(0.07, 0.16, 0.46), glass);
     housing.position.set(-2.6, 0.8, side * 0.55);
     root.add(housing);
 
     // L-shaped LED signature: two horizontal bars plus an outer vertical bar.
-    for (const y of [0.845, 0.77]) {
-      const bar = new THREE.Mesh(new THREE.BoxGeometry(0.015, 0.02, 0.34), tailMat);
-      bar.position.set(-2.628, y, side * 0.55);
+    for (const y of [0.855, 0.755]) {
+      const bar = new THREE.Mesh(new THREE.BoxGeometry(0.015, 0.024, 0.4), tailMat);
+      bar.position.set(-2.638, y, side * 0.55);
       root.add(bar);
     }
-    const outerBar = new THREE.Mesh(new THREE.BoxGeometry(0.015, 0.1, 0.02), tailMat);
-    outerBar.position.set(-2.628, 0.807, side * 0.715);
+    const outerBar = new THREE.Mesh(new THREE.BoxGeometry(0.015, 0.12, 0.022), tailMat);
+    outerBar.position.set(-2.638, 0.805, side * 0.735);
     root.add(outerBar);
   }
 
@@ -348,6 +356,11 @@ export function buildM5() {
       root.add(fin);
     }
   }
+
+  // Black valance tying the tail into the diffuser.
+  const valance = new THREE.Mesh(new THREE.BoxGeometry(0.05, 0.16, 1.35), trim);
+  valance.position.set(-2.615, 0.34, 0);
+  root.add(valance);
 
   // ================================================================ trim ==
 

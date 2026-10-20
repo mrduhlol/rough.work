@@ -92,6 +92,9 @@ scene.add(rim);
 const car = buildM5();
 scene.add(car.root);
 
+// Debug handle: lets you drive the camera from the console.
+window.__m5 = { scene, camera, controls, car };
+
 // ---------------------------------------------------------------- loop
 window.addEventListener('resize', () => {
   camera.aspect = window.innerWidth / window.innerHeight;
