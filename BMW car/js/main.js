@@ -2,6 +2,7 @@ import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 import { Reflector } from 'three/addons/objects/Reflector.js';
+import { buildM5 } from './car.js';
 
 const app = document.getElementById('app');
 
@@ -86,6 +87,10 @@ scene.add(key);
 const rim = new THREE.DirectionalLight(0x8fb3ff, 1.2);
 rim.position.set(-7, 5.5, -6.5);
 scene.add(rim);
+
+// ---------------------------------------------------------------- car
+const car = buildM5();
+scene.add(car.root);
 
 // ---------------------------------------------------------------- loop
 window.addEventListener('resize', () => {
