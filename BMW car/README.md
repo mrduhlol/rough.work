@@ -39,3 +39,5 @@ long, 1.90 m wide, 2.98 m wheelbase.
 
 `window.__m5` exposes `{ scene, camera, controls, car }` for tinkering from the
 browser console.
+
+![preview](preview.png)
