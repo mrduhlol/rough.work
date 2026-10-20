@@ -84,6 +84,7 @@ export function buildM5() {
     color: 0x9aa0a8,
     metalness: 0.95,
     roughness: 0.32,
+    side: THREE.DoubleSide,
   });
 
   const discMat = new THREE.MeshStandardMaterial({
@@ -158,7 +159,91 @@ export function buildM5() {
     root.add(g);
   }
 
-  // ============================================================ wheels =====
+  // ---------------------------------------------------------------- wheels
+  function buildWheel(isFront) {
+    const wheel = new THREE.Group();
+
+    // Tire: tread band with two rounded shoulders closing the sidewalls.
+    const tread = new THREE.Mesh(
+      new THREE.CylinderGeometry(WHEEL_R, WHEEL_R, 0.11, 64, 1, true),
+      rubber
+    );
+    tread.rotation.x = Math.PI / 2;
+    tread.castShadow = true;
+    wheel.add(tread);
+
+    for (const zs of [1, -1]) {
+      const shoulder = new THREE.Mesh(new THREE.TorusGeometry(0.285, 0.066, 20, 64), rubber);
+      shoulder.position.z = zs * 0.069;
+      shoulder.castShadow = true;
+      wheel.add(shoulder);
+    }
+
+    // Rim barrel + outer lip.
+    const barrel = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.228, 0.228, 0.24, 40, 1, true),
+      rimMat
+    );
+    barrel.rotation.x = Math.PI / 2;
+    wheel.add(barrel);
+
+    for (const zs of [1, -1]) {
+      const lip = new THREE.Mesh(new THREE.TorusGeometry(0.222, 0.014, 12, 64), rimMat);
+      lip.position.z = zs * 0.108;
+      wheel.add(lip);
+    }
+
+    // 705M-style double-spoke face: five pairs of spokes.
+    for (let i = 0; i < 5; i++) {
+      const base = (i * Math.PI * 2) / 5;
+      for (const offset of [-0.1, 0.1]) {
+        const a = base + offset;
+        const spoke = new THREE.Mesh(new THREE.BoxGeometry(0.03, 0.185, 0.028), rimMat);
+        spoke.position.set(Math.cos(a) * 0.135, Math.sin(a) * 0.135, 0.1);
+        spoke.rotation.z = a - Math.PI / 2;
+        wheel.add(spoke);
+      }
+    }
+
+    // Hub.
+    const hub = new THREE.Mesh(new THREE.CylinderGeometry(0.055, 0.055, 0.035, 32), rimMat);
+    hub.rotation.x = Math.PI / 2;
+    hub.position.z = 0.1;
+    wheel.add(hub);
+
+    // Brake disc + M caliper, visible through the spokes.
+    const disc = new THREE.Mesh(
+      new THREE.CylinderGeometry(isFront ? 0.185 : 0.17, isFront ? 0.185 : 0.17, 0.022, 40),
+      discMat
+    );
+    disc.rotation.x = Math.PI / 2;
+    disc.position.z = 0.045;
+    wheel.add(disc);
+
+    const caliper = new THREE.Mesh(new THREE.BoxGeometry(0.055, 0.16, 0.055), caliperMat);
+    const caliperAngle = -0.6;
+    caliper.position.set(
+      Math.cos(caliperAngle) * 0.115,
+      Math.sin(caliperAngle) * 0.115,
+      0.045
+    );
+    caliper.rotation.z = caliperAngle;
+    wheel.add(caliper);
+
+    return wheel;
+  }
+
+  for (const [x, side] of [
+    [AXLE_F, 1],
+    [AXLE_R, 1],
+    [AXLE_F, -1],
+    [AXLE_R, -1],
+  ]) {
+    const wheel = buildWheel(x === AXLE_F);
+    wheel.position.set(x, WHEEL_Y, side * 0.78);
+    if (side === -1) wheel.rotation.y = Math.PI;
+    root.add(wheel);
+  }
   // ========================================================= front details ==
   // ========================================================== rear details ==
   // ================================================================ trim ==
