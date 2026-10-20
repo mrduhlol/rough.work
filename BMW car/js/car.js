@@ -54,6 +54,7 @@ export function buildM5() {
     clearcoat: 0.0,
     clearcoatRoughness: 0.1,
     envMapIntensity: 0.05,
+    side: THREE.DoubleSide,
   });
 
   const tailGlass = new THREE.MeshPhysicalMaterial({
@@ -79,8 +80,9 @@ export function buildM5() {
 
   const carbon = new THREE.MeshStandardMaterial({
     color: 0x08090b,
-    metalness: 0.15,
-    roughness: 0.5,
+    metalness: 0.1,
+    roughness: 0.85,
+    envMapIntensity: 0.25,
   });
 
   const rubber = new THREE.MeshStandardMaterial({
@@ -352,9 +354,9 @@ export function buildM5() {
 
   // Quad exhaust tips.
   for (const z of [0.6, 0.475, -0.6, -0.475]) {
-    const tip = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.05, 0.16, 24), chrome);
+    const tip = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.05, 0.1, 24), chrome);
     tip.rotation.z = Math.PI / 2;
-    tip.position.set(-2.645, 0.27, z);
+    tip.position.set(-2.6, 0.27, z);
     root.add(tip);
   }
 
@@ -610,13 +612,18 @@ function roundedRectShape(w, h, r) {
 
 // A flat panel laid between two points in the side view, pushed slightly out
 // along the outward normal so it does not z-fight with the body shell.
-function panelBetween(x1, y1, x2, y2, width, thickness, material, offset = 0.012) {
+// Zero thickness on purpose: a box edge catches the light as a bright strip.
+function panelBetween(x1, y1, x2, y2, width, material, offset = 0.012) {
   const dx = x2 - x1;
   const dy = y2 - y1;
   const len = Math.hypot(dx, dy);
   const nx = dy / len;
   const ny = -dx / len;
-  const mesh = new THREE.Mesh(new THREE.BoxGeometry(len, thickness, width), material);
+
+  const geo = new THREE.PlaneGeometry(len, width);
+  geo.rotateX(-Math.PI / 2);
+
+  const mesh = new THREE.Mesh(geo, material);
   mesh.position.set((x1 + x2) / 2 + nx * offset, (y1 + y2) / 2 + ny * offset, 0);
   mesh.rotation.z = Math.atan2(dy, dx);
   return mesh;
