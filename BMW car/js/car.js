@@ -244,8 +244,111 @@ export function buildM5() {
     if (side === -1) wheel.rotation.y = Math.PI;
     root.add(wheel);
   }
-  // ========================================================= front details ==
+  // ---------------------------------------------------------- front details
+  // Twin kidney grille: two rounded-rect frames with vertical slats.
+  {
+    const outer = roundedRectShape(0.3, 0.36, 0.05);
+    const inner = roundedRectShape(0.24, 0.3, 0.03);
+    outer.holes.push(inner);
+    const frameGeo = new THREE.ExtrudeGeometry(outer, {
+      depth: 0.045,
+      bevelEnabled: true,
+      bevelThickness: 0.004,
+      bevelSize: 0.004,
+      bevelSegments: 2,
+    });
+
+    for (const side of [1, -1]) {
+      const frame = new THREE.Mesh(frameGeo, trim);
+      frame.rotation.y = Math.PI / 2;
+      frame.position.set(2.325, 0.62, side * 0.165);
+      root.add(frame);
+
+      for (const off of [-0.09, -0.03, 0.03, 0.09]) {
+        const slat = new THREE.Mesh(new THREE.BoxGeometry(0.03, 0.3, 0.018), trim);
+        slat.position.set(2.35, 0.62, side * 0.165 + off);
+        root.add(slat);
+      }
+    }
+  }
+
+  // Headlights: slim dark housings with two angled DRL bars each.
+  for (const side of [1, -1]) {
+    const housing = new THREE.Mesh(new THREE.BoxGeometry(0.1, 0.13, 0.36), glass);
+    housing.position.set(2.34, 0.76, side * 0.53);
+    root.add(housing);
+
+    for (const [dy, tilt] of [
+      [0.035, 0.24],
+      [-0.01, -0.24],
+    ]) {
+      const bar = new THREE.Mesh(new THREE.BoxGeometry(0.015, 0.022, 0.185), drlMat);
+      bar.position.set(2.398, 0.76 + dy, side * 0.505);
+      bar.rotation.x = tilt;
+      root.add(bar);
+    }
+  }
+
+  // Bumper intakes and front splitter.
+  for (const side of [1, -1]) {
+    const intake = new THREE.Mesh(new THREE.BoxGeometry(0.09, 0.17, 0.26), trim);
+    intake.position.set(2.33, 0.4, side * 0.6);
+    intake.rotation.y = side * -0.15;
+    root.add(intake);
+  }
+  const centerIntake = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.11, 0.62), trim);
+  centerIntake.position.set(2.34, 0.37, 0);
+  root.add(centerIntake);
+
+  const splitter = new THREE.Mesh(new THREE.BoxGeometry(0.22, 0.03, 1.36), trim);
+  splitter.position.set(2.315, 0.175, 0);
+  root.add(splitter);
+
   // ========================================================== rear details ==
+  // ----------------------------------------------------------- rear details
+  for (const side of [1, -1]) {
+    const housing = new THREE.Mesh(new THREE.BoxGeometry(0.05, 0.14, 0.4), glass);
+    housing.position.set(-2.6, 0.8, side * 0.55);
+    root.add(housing);
+
+    // L-shaped LED signature: two horizontal bars plus an outer vertical bar.
+    for (const y of [0.845, 0.77]) {
+      const bar = new THREE.Mesh(new THREE.BoxGeometry(0.015, 0.02, 0.34), tailMat);
+      bar.position.set(-2.628, y, side * 0.55);
+      root.add(bar);
+    }
+    const outerBar = new THREE.Mesh(new THREE.BoxGeometry(0.015, 0.1, 0.02), tailMat);
+    outerBar.position.set(-2.628, 0.807, side * 0.715);
+    root.add(outerBar);
+  }
+
+  // Trunk lip spoiler.
+  {
+    const lip = new THREE.Mesh(new THREE.BoxGeometry(0.16, 0.028, 1.3), carbon);
+    lip.position.set(-2.5, 1.062, 0);
+    root.add(lip);
+  }
+
+  // Quad exhaust tips.
+  for (const z of [0.6, 0.475, -0.6, -0.475]) {
+    const tip = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.05, 0.16, 24), chrome);
+    tip.rotation.z = Math.PI / 2;
+    tip.position.set(-2.645, 0.27, z);
+    root.add(tip);
+  }
+
+  // Diffuser with fins.
+  {
+    const diffuser = new THREE.Mesh(new THREE.BoxGeometry(0.1, 0.15, 1.1), trim);
+    diffuser.position.set(-2.585, 0.19, 0);
+    root.add(diffuser);
+    for (const z of [-0.28, 0, 0.28]) {
+      const fin = new THREE.Mesh(new THREE.BoxGeometry(0.09, 0.1, 0.02), trim);
+      fin.position.set(-2.585, 0.19, z);
+      root.add(fin);
+    }
+  }
+
   // ================================================================ trim ==
 
   return { root, setPaint };
@@ -304,6 +407,23 @@ function sideProfile() {
   p(2.32, 0.28);
 
   return new THREE.Shape(pts);
+}
+
+// Rounded rectangle centred on the origin, for grille frames and the like.
+function roundedRectShape(w, h, r) {
+  const s = new THREE.Shape();
+  const x = -w / 2;
+  const y = -h / 2;
+  s.moveTo(x + r, y);
+  s.lineTo(x + w - r, y);
+  s.quadraticCurveTo(x + w, y, x + w, y + r);
+  s.lineTo(x + w, y + h - r);
+  s.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+  s.lineTo(x + r, y + h);
+  s.quadraticCurveTo(x, y + h, x, y + h - r);
+  s.lineTo(x, y + r);
+  s.quadraticCurveTo(x, y, x + r, y);
+  return s;
 }
 
 // A flat panel laid between two points in the side view, pushed slightly out
