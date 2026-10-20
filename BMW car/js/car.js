@@ -48,12 +48,12 @@ export function buildM5() {
 
   // -------------------------------------------------------------- materials
   const glass = new THREE.MeshPhysicalMaterial({
-    color: 0x07090c,
+    color: 0x04060a,
     metalness: 0.0,
-    roughness: 0.09,
-    clearcoat: 0.5,
-    clearcoatRoughness: 0.08,
-    envMapIntensity: 0.75,
+    roughness: 0.08,
+    clearcoat: 0.25,
+    clearcoatRoughness: 0.1,
+    envMapIntensity: 0.45,
   });
 
   const trim = new THREE.MeshStandardMaterial({
@@ -362,7 +362,124 @@ export function buildM5() {
   valance.position.set(-2.615, 0.34, 0);
   root.add(valance);
 
-  // ================================================================ trim ==
+  // ---------------------------------------------------------------- trim
+  // Wheel-arch lips that follow the arch opening.
+  {
+    const dy = WHEEL_Y - BODY_BOTTOM;
+    const archStart = Math.atan2(BODY_BOTTOM - WHEEL_Y, Math.sqrt(ARCH_R * ARCH_R - dy * dy));
+    const lipArc = Math.PI - 2 * archStart;
+    const lipGeo = new THREE.TorusGeometry(ARCH_R + 0.004, 0.02, 10, 48, lipArc);
+
+    for (const x of [AXLE_F, AXLE_R]) {
+      for (const side of [1, -1]) {
+        const lip = new THREE.Mesh(lipGeo, paint);
+        lip.position.set(x, WHEEL_Y, side * 0.945);
+        lip.rotation.z = archStart;
+        root.add(lip);
+      }
+    }
+  }
+
+  // M mirrors on stalks.
+  for (const side of [1, -1]) {
+    const arm = new THREE.Mesh(new THREE.BoxGeometry(0.05, 0.03, 0.12), trim);
+    arm.position.set(0.74, 1.02, side * 0.99);
+    root.add(arm);
+
+    const cap = new THREE.Mesh(new THREE.BoxGeometry(0.17, 0.075, 0.12), paint);
+    cap.position.set(0.72, 1.055, side * 1.06);
+    cap.rotation.z = 0.06;
+    cap.rotation.y = side * 0.12;
+    root.add(cap);
+  }
+
+  // Side skirts.
+  for (const side of [1, -1]) {
+    const skirt = new THREE.Mesh(new THREE.BoxGeometry(2.35, 0.08, 0.04), trim);
+    skirt.position.set(0, 0.19, side * 0.955);
+    root.add(skirt);
+  }
+
+  // Door shut lines.
+  for (const side of [1, -1]) {
+    for (const x of [0.62, -0.3, -1.06]) {
+      const line = new THREE.Mesh(new THREE.BoxGeometry(0.006, 0.66, 0.006), trim);
+      line.position.set(x, 0.6, side * 0.951);
+      root.add(line);
+    }
+  }
+
+  // Door handles.
+  for (const side of [1, -1]) {
+    for (const x of [-0.05, -0.75]) {
+      const handle = new THREE.Mesh(new THREE.BoxGeometry(0.16, 0.02, 0.015), chrome);
+      handle.position.set(x, 0.92, side * 0.955);
+      root.add(handle);
+    }
+  }
+
+  // M badge on each front fender: three slanted stripes.
+  {
+    const stripeColors = [0x2f9fe0, 0x15559e, 0xcf1020];
+    const stripeGeo = new THREE.BoxGeometry(0.018, 0.05, 0.004);
+    for (const side of [1, -1]) {
+      stripeColors.forEach((hex, i) => {
+        const stripe = new THREE.Mesh(
+          stripeGeo,
+          new THREE.MeshStandardMaterial({ color: hex, metalness: 0.4, roughness: 0.3 })
+        );
+        stripe.position.set(0.55 + i * 0.024, 0.9, side * 0.953);
+        stripe.rotation.z = -0.35;
+        root.add(stripe);
+      });
+    }
+  }
+
+  // Carbon roof panel, following the roof line.
+  {
+    const roof = new THREE.Shape();
+    roof.moveTo(-1.05, 1.44);
+    roof.lineTo(-0.85, 1.458);
+    roof.lineTo(-0.2, 1.465);
+    roof.lineTo(0.35, 1.46);
+    roof.lineTo(0.35, 1.472);
+    roof.lineTo(-0.2, 1.477);
+    roof.lineTo(-0.85, 1.47);
+    roof.lineTo(-1.05, 1.452);
+    roof.closePath();
+
+    const roofGeo = new THREE.ExtrudeGeometry(roof, { depth: 1.46, bevelEnabled: false });
+    roofGeo.translate(0, 0, -0.73);
+    root.add(new THREE.Mesh(roofGeo, carbon));
+  }
+
+  // BMW roundels on the hood and boot.
+  const hoodRoundel = makeRoundel();
+  hoodRoundel.rotation.x = -Math.PI / 2;
+  hoodRoundel.position.set(2.02, 0.972, 0);
+  root.add(hoodRoundel);
+
+  const bootRoundel = makeRoundel();
+  bootRoundel.rotation.y = -Math.PI / 2;
+  bootRoundel.position.set(-2.641, 0.93, 0);
+  root.add(bootRoundel);
+
+  // M5 badge on the boot lid.
+  {
+    const tex = textTexture('M5');
+    const badge = new THREE.Mesh(
+      new THREE.PlaneGeometry(0.14, 0.07),
+      new THREE.MeshStandardMaterial({
+        map: tex,
+        transparent: true,
+        metalness: 0.85,
+        roughness: 0.3,
+      })
+    );
+    badge.rotation.y = -Math.PI / 2;
+    badge.position.set(-2.643, 0.9, -0.52);
+    root.add(badge);
+  }
 
   return { root, setPaint };
 }
@@ -420,6 +537,43 @@ function sideProfile() {
   p(2.32, 0.28);
 
   return new THREE.Shape(pts);
+}
+
+// BMW roundel: white disc, alternating blue quarters, chrome ring.
+function makeRoundel() {
+  const g = new THREE.Group();
+  const white = new THREE.MeshStandardMaterial({ color: 0xf2f4f6, metalness: 0.1, roughness: 0.35 });
+  const blue = new THREE.MeshStandardMaterial({ color: 0x0b62b0, metalness: 0.3, roughness: 0.35 });
+
+  g.add(new THREE.Mesh(new THREE.CircleGeometry(0.052, 32), white));
+  for (const start of [Math.PI / 2, Math.PI * 1.5]) {
+    const quarter = new THREE.Mesh(new THREE.CircleGeometry(0.052, 16, start, Math.PI / 2), blue);
+    quarter.position.z = 0.001;
+    g.add(quarter);
+  }
+  const ringMat = new THREE.MeshStandardMaterial({ color: 0xc7ccd4, metalness: 1, roughness: 0.22 });
+  const ring = new THREE.Mesh(new THREE.TorusGeometry(0.052, 0.007, 8, 32), ringMat);
+  ring.position.z = 0.004;
+  g.add(ring);
+  return g;
+}
+
+function textTexture(text, width = 256, height = 128) {
+  const canvas = document.createElement('canvas');
+  canvas.width = width;
+  canvas.height = height;
+  const ctx = canvas.getContext('2d');
+  ctx.clearRect(0, 0, width, height);
+  ctx.fillStyle = '#ffffff';
+  ctx.font = 'bold 76px Arial, sans-serif';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText(text, width / 2, height / 2 + 4);
+
+  const tex = new THREE.CanvasTexture(canvas);
+  tex.colorSpace = THREE.SRGBColorSpace;
+  tex.anisotropy = 4;
+  return tex;
 }
 
 // Rounded rectangle centred on the origin, for grille frames and the like.
