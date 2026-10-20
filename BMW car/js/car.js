@@ -78,9 +78,9 @@ export function buildM5() {
   });
 
   const carbon = new THREE.MeshStandardMaterial({
-    color: 0x14161a,
-    metalness: 0.55,
-    roughness: 0.42,
+    color: 0x0e1013,
+    metalness: 0.4,
+    roughness: 0.55,
   });
 
   const rubber = new THREE.MeshStandardMaterial({
@@ -284,7 +284,7 @@ export function buildM5() {
 
       for (const off of [-0.09, -0.03, 0.03, 0.09]) {
         const slat = new THREE.Mesh(new THREE.BoxGeometry(0.03, 0.36, 0.02), chrome);
-        slat.position.set(2.36, 0.63, side * 0.185 + off);
+        slat.position.set(2.362, 0.63, side * 0.185 + off);
         root.add(slat);
       }
     }
@@ -450,15 +450,17 @@ export function buildM5() {
 
   // Carbon roof panel, following the roof line.
   {
+    const lift = 0.014;
+
     const roof = new THREE.Shape();
-    roof.moveTo(-1.05, 1.44);
-    roof.lineTo(-0.85, 1.458);
-    roof.lineTo(-0.2, 1.465);
-    roof.lineTo(0.35, 1.46);
-    roof.lineTo(0.35, 1.472);
-    roof.lineTo(-0.2, 1.477);
-    roof.lineTo(-0.85, 1.47);
-    roof.lineTo(-1.05, 1.452);
+    roof.moveTo(-1.05, 1.44 + lift);
+    roof.lineTo(-0.85, 1.458 + lift);
+    roof.lineTo(-0.2, 1.465 + lift);
+    roof.lineTo(0.35, 1.46 + lift);
+    roof.lineTo(0.35, 1.472 + lift);
+    roof.lineTo(-0.2, 1.477 + lift);
+    roof.lineTo(-0.85, 1.47 + lift);
+    roof.lineTo(-1.05, 1.452 + lift);
     roof.closePath();
 
     const roofGeo = new THREE.ExtrudeGeometry(roof, { depth: 1.46, bevelEnabled: false });
@@ -469,7 +471,7 @@ export function buildM5() {
   // BMW roundels on the hood and boot.
   const hoodRoundel = makeRoundel();
   hoodRoundel.rotation.x = -Math.PI / 2;
-  hoodRoundel.position.set(2.02, 0.972, 0);
+  hoodRoundel.position.set(2.02, 0.995, 0);
   root.add(hoodRoundel);
 
   const bootRoundel = makeRoundel();
