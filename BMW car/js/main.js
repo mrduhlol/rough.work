@@ -178,6 +178,90 @@ spinToggle.addEventListener('click', () => {
 });
 paintBar.appendChild(spinToggle);
 
+// ---------------------------------------------------------------- doors
+// Click a door to swing it open; click it again to close it. A short drag is
+// treated as an orbit, not a click, so camera work near the car still feels
+// natural. Hovering a door changes the cursor to a pointer.
+const canvas = renderer.domElement;
+const raycaster = new THREE.Raycaster();
+const pointer = new THREE.Vector2();
+const CLICK_SLOP = 6;
+const TOUCH_SLOP = 10;
+let pointerDown = null;
+let dragging = false;
+
+function doorIndexAt(event) {
+  const meshes = car.doorMeshes;
+  if (!meshes.length) return -1;
+  const rect = canvas.getBoundingClientRect();
+  pointer.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+  pointer.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+  raycaster.setFromCamera(pointer, camera);
+  const hits = raycaster.intersectObjects(meshes, false);
+  for (const hit of hits) {
+    const index = hit.object.userData.doorIndex;
+    if (index !== undefined) return index;
+  }
+  return -1;
+}
+
+function updateCursor(event) {
+  canvas.style.cursor = doorIndexAt(event) >= 0 ? 'pointer' : 'grab';
+}
+
+function stopAutoRotate() {
+  if (!controls.autoRotate) return;
+  controls.autoRotate = false;
+  spinToggle.classList.remove('on');
+}
+
+canvas.style.cursor = 'grab';
+
+canvas.addEventListener('pointerdown', (event) => {
+  if (pointerDown) return;
+  if (event.pointerType === 'mouse' && event.button !== 0) return;
+  pointerDown = {
+    x: event.clientX,
+    y: event.clientY,
+    id: event.pointerId,
+    touch: event.pointerType === 'touch',
+  };
+  dragging = false;
+  canvas.style.cursor = 'grabbing';
+});
+
+canvas.addEventListener('pointermove', (event) => {
+  if (!pointerDown) {
+    updateCursor(event);
+    return;
+  }
+  const slop = pointerDown.touch ? TOUCH_SLOP : CLICK_SLOP;
+  if (!dragging && Math.hypot(event.clientX - pointerDown.x, event.clientY - pointerDown.y) > slop) {
+    dragging = true;
+  }
+});
+
+window.addEventListener('pointerup', (event) => {
+  if (!pointerDown || event.pointerId !== pointerDown.id) return;
+  const slop = pointerDown.touch ? TOUCH_SLOP : CLICK_SLOP;
+  const moved = Math.hypot(event.clientX - pointerDown.x, event.clientY - pointerDown.y);
+  const clicked = !dragging && moved <= slop;
+  pointerDown = null;
+  dragging = false;
+  if (clicked) {
+    const index = doorIndexAt(event);
+    if (index !== -1) {
+      car.toggleDoor(index);
+      stopAutoRotate();
+    }
+  }
+  updateCursor(event);
+});
+
+canvas.addEventListener('pointerleave', () => {
+  if (!pointerDown) canvas.style.cursor = 'grab';
+});
+
 // ---------------------------------------------------------------- loop
 window.addEventListener('resize', () => {
   camera.aspect = window.innerWidth / window.innerHeight;
@@ -187,6 +271,7 @@ window.addEventListener('resize', () => {
 
 function animate() {
   requestAnimationFrame(animate);
+  car.updateDoors(performance.now());
   controls.update();
   renderer.render(scene, camera);
 }
