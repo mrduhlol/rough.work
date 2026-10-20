@@ -48,12 +48,12 @@ export function buildM5() {
 
   // -------------------------------------------------------------- materials
   const glass = new THREE.MeshPhysicalMaterial({
-    color: 0x030508,
+    color: 0x020305,
     metalness: 0.0,
-    roughness: 0.1,
-    clearcoat: 0.15,
+    roughness: 0.22,
+    clearcoat: 0.0,
     clearcoatRoughness: 0.1,
-    envMapIntensity: 0.25,
+    envMapIntensity: 0.12,
   });
 
   const tailGlass = new THREE.MeshPhysicalMaterial({
@@ -138,6 +138,11 @@ export function buildM5() {
   body.castShadow = true;
   body.receiveShadow = true;
   root.add(body);
+
+  // Dark floor pan, so the mirror floor reflects a proper underbody.
+  const floorPan = new THREE.Mesh(new THREE.BoxGeometry(3.9, 0.02, 1.28), trim);
+  floorPan.position.set(0, 0.15, 0);
+  root.add(floorPan);
 
   // -------------------------------------------------------------- glazing
   // Windshield + rear screen sit just proud of the shell; the side glass is
