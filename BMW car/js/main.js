@@ -2,7 +2,7 @@ import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 import { Reflector } from 'three/addons/objects/Reflector.js';
-import { buildM5 } from './car.js';
+import { buildM5, PAINTS } from './car.js';
 
 const app = document.getElementById('app');
 
@@ -94,6 +94,31 @@ scene.add(car.root);
 
 // Debug handle: lets you drive the camera from the console.
 window.__m5 = { scene, camera, controls, car };
+
+// ---------------------------------------------------------------- controls
+const paintBar = document.getElementById('paint');
+
+PAINTS.forEach((paint, i) => {
+  const swatch = document.createElement('button');
+  swatch.className = i === 0 ? 'swatch active' : 'swatch';
+  swatch.style.background = `#${paint.hex.toString(16).padStart(6, '0')}`;
+  swatch.title = paint.name;
+  swatch.addEventListener('click', () => {
+    document.querySelectorAll('.swatch').forEach((el) => el.classList.remove('active'));
+    swatch.classList.add('active');
+    car.setPaint(paint.hex, paint.roughness);
+  });
+  paintBar.appendChild(swatch);
+});
+
+const spinToggle = document.createElement('button');
+spinToggle.className = 'toggle on';
+spinToggle.textContent = 'Auto-rotate';
+spinToggle.addEventListener('click', () => {
+  controls.autoRotate = !controls.autoRotate;
+  spinToggle.classList.toggle('on', controls.autoRotate);
+});
+paintBar.appendChild(spinToggle);
 
 // ---------------------------------------------------------------- loop
 window.addEventListener('resize', () => {
