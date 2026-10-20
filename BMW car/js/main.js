@@ -11,7 +11,7 @@ const renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'hi
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
-renderer.toneMappingExposure = 1.05;
+renderer.toneMappingExposure = 1.15;
 renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 app.appendChild(renderer.domElement);
@@ -22,11 +22,11 @@ scene.background = new THREE.Color(0x0a0c10);
 
 // Image-based lighting so the paint gets real reflections to work with.
 const pmrem = new THREE.PMREMGenerator(renderer);
-scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.07).texture;
-scene.environmentIntensity = 0.55;
+scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
+scene.environmentIntensity = 0.85;
 
 const camera = new THREE.PerspectiveCamera(38, window.innerWidth / window.innerHeight, 0.1, 250);
-camera.position.set(6.4, 2.6, 7.0);
+camera.position.set(4.7, 2.05, 5.3);
 
 const controls = new OrbitControls(camera, renderer.domElement);
 controls.target.set(0, 0.62, 0);
@@ -43,9 +43,9 @@ controls.autoRotateSpeed = 0.8;
 // concrete in a showroom, and the sheen plane is what actually receives shadows.
 const floor = new Reflector(new THREE.CircleGeometry(11, 96), {
   clipBias: 0.003,
-  textureWidth: 2048,
-  textureHeight: 2048,
-  color: 0x15181e,
+  textureWidth: 1024,
+  textureHeight: 1024,
+  color: 0x1a1e24,
 });
 floor.rotation.x = -Math.PI / 2;
 scene.add(floor);
@@ -57,7 +57,7 @@ const sheen = new THREE.Mesh(
     roughness: 0.6,
     metalness: 0.35,
     transparent: true,
-    opacity: 0.5,
+    opacity: 0.42,
   })
 );
 sheen.rotation.x = -Math.PI / 2;
@@ -66,10 +66,10 @@ sheen.receiveShadow = true;
 scene.add(sheen);
 
 // ---------------------------------------------------------------- lights
-const hemi = new THREE.HemisphereLight(0xbcd0ff, 0x0a0c10, 0.55);
+const hemi = new THREE.HemisphereLight(0xbcd0ff, 0x0a0c10, 0.7);
 scene.add(hemi);
 
-const key = new THREE.DirectionalLight(0xffffff, 2.7);
+const key = new THREE.DirectionalLight(0xffffff, 3.1);
 key.position.set(5.5, 9, 5);
 key.castShadow = true;
 key.shadow.mapSize.set(2048, 2048);
@@ -84,7 +84,7 @@ key.shadow.normalBias = 0.02;
 key.shadow.radius = 5;
 scene.add(key);
 
-const rim = new THREE.DirectionalLight(0x8fb3ff, 1.2);
+const rim = new THREE.DirectionalLight(0x8fb3ff, 1.7);
 rim.position.set(-7, 5.5, -6.5);
 scene.add(rim);
 
