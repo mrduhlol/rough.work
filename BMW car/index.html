@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>BMW M5 — Three.js</title>
+  <style>
+    :root { color-scheme: dark; }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body { height: 100%; overflow: hidden; background: #08090b;
+      font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+    #app { position: fixed; inset: 0; }
+    canvas { display: block; }
+
+    .hud { position: fixed; z-index: 10; color: #e8eaee; pointer-events: none; user-select: none; }
+
+    #title { top: 22px; left: 24px; }
+    #title h1 { font-size: 15px; letter-spacing: .35em; font-weight: 600; text-transform: uppercase; }
+    #title p { margin-top: 6px; font-size: 10px; letter-spacing: .16em; color: #8590a0; text-transform: uppercase; }
+
+    #hint { bottom: 20px; left: 24px; font-size: 10px; letter-spacing: .14em; color: #6b7484; text-transform: uppercase; }
+
+    #paint { position: fixed; bottom: 18px; right: 24px; z-index: 10; display: flex; gap: 10px; align-items: center; }
+    .swatch { width: 26px; height: 26px; border-radius: 50%; border: 2px solid rgba(255,255,255,.14);
+      cursor: pointer; transition: transform .15s ease, border-color .15s ease; }
+    .swatch:hover { transform: scale(1.12); }
+    .swatch.active { border-color: #fff; transform: scale(1.12); }
+    .toggle { margin-left: 14px; font-size: 10px; letter-spacing: .16em; text-transform: uppercase;
+      color: #9aa4b2; background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.12);
+      padding: 7px 12px; border-radius: 999px; cursor: pointer; }
+    .toggle.on { color: #0a0b0d; background: #e8eaee; }
+
+    #loader { position: fixed; inset: 0; display: grid; place-items: center; background: #08090b;
+      color: #7c8593; font-size: 12px; letter-spacing: .3em; text-transform: uppercase;
+      transition: opacity .5s ease; z-index: 20; }
+  </style>
+</head>
+<body>
+  <div id="app"></div>
+
+  <div class="hud" id="title">
+    <h1>BMW M5</h1>
+    <p>Three.js &middot; procedural build</p>
+  </div>
+  <div class="hud" id="hint">Drag to orbit &middot; Scroll to zoom &middot; Right-drag to pan</div>
+
+  <div id="paint"></div>
+  <div id="loader">Loading</div>
+
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js",
+        "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"
+      }
+    }
+  </script>
+  <script type="module" src="./js/main.js"></script>
+</body>
+</html>
